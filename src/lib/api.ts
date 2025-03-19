@@ -75,82 +75,63 @@ export async function summarizeText(text: string): Promise<string> {
   console.log('Resumindo o texto...');
   
   try {
+    // Verificar qual API usar com base na configuração do usuário
+    const apiType = localStorage.getItem('api_type') || 'huggingface';
+    
     // OPÇÃO 1: Usando a API OpenAI (https://api.openai.com)
     // Você precisará criar uma conta e obter uma API key
     // Armazene sua chave no localStorage para testes ou em variáveis de ambiente para produção
-    
-    // Obtém a chave da API do localStorage (só para testes locais)
-    const openaiKey = localStorage.getItem('openai_api_key');
-    
-    // Se você tem uma chave da API OpenAI, usar a API real
-    if (openaiKey) {
-      try {
-        console.log("Tentando usar a API da OpenAI com a chave fornecida...");
-        const response = await fetch('https://api.openai.com/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${openaiKey}`
-          },
-          body: JSON.stringify({
-            model: 'gpt-3.5-turbo',
-            messages: [
-              {
-                role: 'system',
-                content: 'Você é um assistente especializado em resumir vídeos. Crie um resumo conciso e bem organizado do seguinte texto transcrito de um vídeo.'
-              },
-              {
-                role: 'user',
-                content: text
-              }
-            ],
-            max_tokens: 500
-          })
-        });
-        
-        if (!response.ok) {
-          const errorData = await response.json();
-          console.error("Erro na resposta da OpenAI:", errorData);
-          throw new Error(`Erro na API da OpenAI: ${response.status} - ${errorData.error?.message || 'Erro desconhecido'}`);
+    if (apiType === 'openai') {
+      // Obtém a chave da API do localStorage (só para testes locais)
+      const openaiKey = localStorage.getItem('openai_api_key');
+      
+      // Se você tem uma chave da API OpenAI, usar a API real
+      if (openaiKey) {
+        try {
+          console.log("Tentando usar a API da OpenAI com a chave fornecida...");
+          const response = await fetch('https://api.openai.com/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${openaiKey}`
+            },
+            body: JSON.stringify({
+              model: 'gpt-3.5-turbo',
+              messages: [
+                {
+                  role: 'system',
+                  content: 'Você é um assistente especializado em resumir vídeos. Crie um resumo conciso e bem organizado do seguinte texto transcrito de um vídeo.'
+                },
+                {
+                  role: 'user',
+                  content: text
+                }
+              ],
+              max_tokens: 500
+            })
+          });
+          
+          if (!response.ok) {
+            const errorData = await response.json();
+            console.error("Erro na resposta da OpenAI:", errorData);
+            throw new Error(`Erro na API da OpenAI: ${response.status} - ${errorData.error?.message || 'Erro desconhecido'}`);
+          }
+          
+          const data = await response.json();
+          return data.choices[0].message.content;
+        } catch (apiError) {
+          console.error("Erro ao chamar a API da OpenAI:", apiError);
+          // Se a API falhar, tentamos usar o Hugging Face como fallback
+          console.log("Tentando usar Hugging Face como fallback...");
+          return await useHuggingFaceAPI(text);
         }
-        
-        const data = await response.json();
-        return data.choices[0].message.content;
-      } catch (apiError) {
-        console.error("Erro ao chamar a API da OpenAI:", apiError);
-        // Se a API falhar, usamos o resumo simulado como fallback
-        console.log("Usando resumo simulado como fallback...");
-        return generateSimulatedSummary(text);
       }
     }
     
-    // OPÇÃO 2: Usando a API Hugging Face Inference (https://huggingface.co/inference-api)
-    // Você precisará criar uma conta e obter uma API key
-    
-    // const huggingfaceKey = localStorage.getItem('huggingface_api_key');
-    // if (huggingfaceKey) {
-    //   const response = await fetch('https://api-inference.huggingface.co/models/facebook/bart-large-cnn', {
-    //     method: 'POST',
-    //     headers: {
-    //       'Content-Type': 'application/json',
-    //       'Authorization': `Bearer ${huggingfaceKey}`
-    //     },
-    //     body: JSON.stringify({
-    //       inputs: text,
-    //       parameters: {
-    //         max_length: 500,
-    //         min_length: 100
-    //       }
-    //     })
-    //   });
-    //   
-    //   if (!response.ok) {
-    //     throw new Error(`Erro na API do Hugging Face: ${response.status}`);
-    //   }
-    //   
-    //   const data = await response.json();
-    //   return data[0].summary_text;
-    // }
+    // OPÇÃO 2: Usando a API Hugging Face Inference (gratuita)
+    if (apiType === 'huggingface' || apiType === 'free') {
+      return await useHuggingFaceAPI(text);
+    }
     
     // Se nenhuma API estiver configurada, gerar um resumo simulado
     return generateSimulatedSummary(text);
@@ -160,6 +141,45 @@ export async function summarizeText(text: string): Promise<string> {
     
     // Para testes e demonstração, vamos retornar um resumo simulado em vez de lançar um erro
     console.log("Utilizando resumo simulado devido a um erro...");
+    return generateSimulatedSummary(text);
+  }
+}
+
+// Função para usar a API gratuita do Hugging Face
+async function useHuggingFaceAPI(text: string): Promise<string> {
+  try {
+    console.log("Usando a API pública do Hugging Face...");
+    
+    // Reduzir o texto para atender aos limites da API gratuita
+    const truncatedText = text.slice(0, 2000) + (text.length > 2000 ? '...' : '');
+    
+    // A API gratuita do Hugging Face
+    const response = await fetch('https://api-inference.huggingface.co/models/facebook/bart-large-cnn', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        inputs: truncatedText,
+        parameters: {
+          max_length: 500,
+          min_length: 100
+        }
+      })
+    });
+    
+    if (!response.ok) {
+      console.error("Erro na resposta do Hugging Face:", response.status);
+      throw new Error(`Erro na API do Hugging Face: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    console.log("Resumo gerado pelo Hugging Face:", data);
+    
+    return Array.isArray(data) ? data[0].summary_text : data.summary_text;
+  } catch (error) {
+    console.error("Erro ao usar a API do Hugging Face:", error);
+    // Se a API falhar, usamos o resumo simulado
     return generateSimulatedSummary(text);
   }
 }
