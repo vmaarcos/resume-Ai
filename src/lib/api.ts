@@ -1,3 +1,4 @@
+
 /**
  * APIs para transcrição de vídeos e geração de resumos
  */
@@ -15,7 +16,7 @@ export async function transcribeVideo(videoId: string): Promise<string> {
     //   method: 'POST',
     //   headers: {
     //     'Content-Type': 'application/json',
-    //     'Authorization': 'SUA_API_KEY_AQUI'
+    //     'Authorization': process.env.ASSEMBLY_AI_KEY || 'SUA_API_KEY_AQUI'
     //   },
     //   body: JSON.stringify({
     //     audio_url: `https://www.youtube.com/watch?v=${videoId}`,
@@ -33,7 +34,7 @@ export async function transcribeVideo(videoId: string): Promise<string> {
     //   method: 'GET',
     //   headers: {
     //     'X-RapidAPI-Host': 'youtube-transcriptor.p.rapidapi.com',
-    //     'X-RapidAPI-Key': 'SUA_API_KEY_AQUI'
+    //     'X-RapidAPI-Key': process.env.RAPID_API_KEY || 'SUA_API_KEY_AQUI'
     //   }
     // });
     // const data = await response.json();
@@ -55,58 +56,96 @@ export async function summarizeText(text: string): Promise<string> {
   try {
     // OPÇÃO 1: Usando a API OpenAI (https://api.openai.com)
     // Você precisará criar uma conta e obter uma API key
+    // Armazene sua chave no localStorage para testes ou em variáveis de ambiente para produção
     
-    // Exemplo de chamada à API da OpenAI
-    // const response = await fetch('https://api.openai.com/v1/chat/completions', {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //     'Authorization': 'Bearer SUA_API_KEY_AQUI'
-    //   },
-    //   body: JSON.stringify({
-    //     model: 'gpt-3.5-turbo',
-    //     messages: [
-    //       {
-    //         role: 'system',
-    //         content: 'Você é um assistente especializado em resumir vídeos. Crie um resumo conciso e bem organizado do seguinte texto transcrito de um vídeo.'
-    //       },
-    //       {
-    //         role: 'user',
-    //         content: text
-    //       }
-    //     ],
-    //     max_tokens: 500
-    //   })
-    // });
-    // const data = await response.json();
-    // return data.choices[0].message.content;
+    // Obtém a chave da API do localStorage (só para testes locais)
+    const openaiKey = localStorage.getItem('openai_api_key');
+    
+    // Se você tem uma chave da API OpenAI, usar a API real
+    if (openaiKey) {
+      try {
+        console.log("Tentando usar a API da OpenAI com a chave fornecida...");
+        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${openaiKey}`
+          },
+          body: JSON.stringify({
+            model: 'gpt-3.5-turbo',
+            messages: [
+              {
+                role: 'system',
+                content: 'Você é um assistente especializado em resumir vídeos. Crie um resumo conciso e bem organizado do seguinte texto transcrito de um vídeo.'
+              },
+              {
+                role: 'user',
+                content: text
+              }
+            ],
+            max_tokens: 500
+          })
+        });
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.error("Erro na resposta da OpenAI:", errorData);
+          throw new Error(`Erro na API da OpenAI: ${response.status} - ${errorData.error?.message || 'Erro desconhecido'}`);
+        }
+        
+        const data = await response.json();
+        return data.choices[0].message.content;
+      } catch (apiError) {
+        console.error("Erro ao chamar a API da OpenAI:", apiError);
+        // Se a API falhar, usamos o resumo simulado como fallback
+        console.log("Usando resumo simulado como fallback...");
+        return generateSimulatedSummary(text);
+      }
+    }
     
     // OPÇÃO 2: Usando a API Hugging Face Inference (https://huggingface.co/inference-api)
     // Você precisará criar uma conta e obter uma API key
     
-    // Exemplo de chamada à API do Hugging Face
-    // const response = await fetch('https://api-inference.huggingface.co/models/facebook/bart-large-cnn', {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //     'Authorization': 'Bearer SUA_API_KEY_AQUI'
-    //   },
-    //   body: JSON.stringify({
-    //     inputs: text,
-    //     parameters: {
-    //       max_length: 500,
-    //       min_length: 100
-    //     }
-    //   })
-    // });
-    // const data = await response.json();
-    // return data[0].summary_text;
+    // const huggingfaceKey = localStorage.getItem('huggingface_api_key');
+    // if (huggingfaceKey) {
+    //   const response = await fetch('https://api-inference.huggingface.co/models/facebook/bart-large-cnn', {
+    //     method: 'POST',
+    //     headers: {
+    //       'Content-Type': 'application/json',
+    //       'Authorization': `Bearer ${huggingfaceKey}`
+    //     },
+    //     body: JSON.stringify({
+    //       inputs: text,
+    //       parameters: {
+    //         max_length: 500,
+    //         min_length: 100
+    //       }
+    //     })
+    //   });
+    //   
+    //   if (!response.ok) {
+    //     throw new Error(`Erro na API do Hugging Face: ${response.status}`);
+    //   }
+    //   
+    //   const data = await response.json();
+    //   return data[0].summary_text;
+    // }
     
-    // Enquanto não temos uma API real configurada, retornamos o resumo simulado
-    const words = text.split(' ');
-    const summaryLength = Math.max(Math.floor(words.length * 0.3), 50);
+    // Se nenhuma API estiver configurada, gerar um resumo simulado
+    return generateSimulatedSummary(text);
     
-    const summary = `
+  } catch (error) {
+    console.error('Erro ao resumir o texto:', error);
+    throw new Error('Não foi possível gerar o resumo. Por favor, tente novamente.');
+  }
+}
+
+// Função para gerar um resumo simulado
+function generateSimulatedSummary(text: string): string {
+  const words = text.split(' ');
+  const summaryLength = Math.max(Math.floor(words.length * 0.3), 50);
+  
+  const summary = `
 Principais pontos do vídeo:
 
 • ${words.slice(0, 15).join(' ')}...
@@ -116,14 +155,9 @@ Principais pontos do vídeo:
 Em resumo, ${words.slice(0, summaryLength).join(' ')}...
 
 Este vídeo é recomendado para pessoas interessadas em ${getRandomTopic()}.
-    `;
-    
-    return summary.trim();
-    
-  } catch (error) {
-    console.error('Erro ao resumir o texto:', error);
-    throw new Error('Não foi possível gerar o resumo. Por favor, tente novamente.');
-  }
+  `;
+  
+  return summary.trim();
 }
 
 // Algumas transcrições simuladas para demonstração

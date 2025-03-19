@@ -1,9 +1,9 @@
-
 import React, { useState, useEffect } from 'react';
 import VideoInput from '@/components/VideoInput';
 import VideoPreview from '@/components/VideoPreview';
 import SummaryResult from '@/components/SummaryResult';
 import LoadingState from '@/components/LoadingState';
+import ApiKeyInput from '@/components/ApiKeyInput';
 import { transcribeVideo, summarizeText } from '@/lib/api';
 import { getVideoInfo } from '@/utils/youtube';
 import { Toaster } from "@/components/ui/toaster";
@@ -18,7 +18,6 @@ const Index = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Efeito para obter o título do vídeo quando o ID mudar
     const fetchVideoInfo = async () => {
       if (videoId) {
         const info = await getVideoInfo(videoId);
@@ -38,16 +37,12 @@ const Index = () => {
     setIsLoading(true);
 
     try {
-      // 1. Obter a transcrição do vídeo
       const transcription = await transcribeVideo(id);
       
-      // 2. Resumir o texto transcrito
       const generatedSummary = await summarizeText(transcription);
       
-      // 3. Atualizar o estado com o resumo gerado
       setSummary(generatedSummary);
       
-      // 4. Notificar o usuário
       toast({
         title: "Resumo gerado com sucesso!",
         description: "O resumo do vídeo está pronto para visualização.",
@@ -78,6 +73,8 @@ const Index = () => {
         </header>
         
         <main className="space-y-8">
+          <ApiKeyInput />
+          
           <VideoInput onSubmit={handleVideoSubmit} isLoading={isLoading} />
           
           {videoId && <VideoPreview videoId={videoId} />}
