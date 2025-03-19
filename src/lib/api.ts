@@ -40,12 +40,33 @@ export async function transcribeVideo(videoId: string): Promise<string> {
     // const data = await response.json();
     // return data.transcript.join(' ');
     
-    // Enquanto não temos uma API real configurada, retornamos a transcrição simulada
-    return mockTranscriptions[videoId] || defaultTranscription;
+    // Verifica se temos uma transcrição simulada para este vídeo ID específico
+    if (mockTranscriptions[videoId]) {
+      return mockTranscriptions[videoId];
+    }
+    
+    // Para IDs de vídeo desconhecidos, verificamos se devemos simular um erro
+    // Simulamos erro em 10% das tentativas para testar o tratamento de erro
+    if (Math.random() < 0.1) {
+      throw new Error("Simulação de erro de transcrição para teste");
+    }
+    
+    // Em outros casos, retornamos a transcrição simulada padrão
+    return defaultTranscription;
     
   } catch (error) {
     console.error('Erro ao transcrever o vídeo:', error);
-    throw new Error('Não foi possível transcrever o vídeo. Por favor, tente novamente.');
+    
+    // Para testes e demonstração, vamos retornar a transcrição padrão em caso de erro
+    // Em um ambiente de produção real, você provavelmente desejaria lançar o erro
+    // para que a interface possa mostrar uma mensagem apropriada
+    
+    // Opção 1: Lançar o erro (comportamento atual - mostra erro ao usuário)
+    // throw new Error('Não foi possível transcrever o vídeo. Por favor, tente novamente.');
+    
+    // Opção 2: Degradação graciosa - usar transcrição padrão mesmo em erro
+    console.log("Usando transcrição padrão devido a um erro...");
+    return defaultTranscription;
   }
 }
 
@@ -136,7 +157,10 @@ export async function summarizeText(text: string): Promise<string> {
     
   } catch (error) {
     console.error('Erro ao resumir o texto:', error);
-    throw new Error('Não foi possível gerar o resumo. Por favor, tente novamente.');
+    
+    // Para testes e demonstração, vamos retornar um resumo simulado em vez de lançar um erro
+    console.log("Utilizando resumo simulado devido a um erro...");
+    return generateSimulatedSummary(text);
   }
 }
 

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { AlertCircle } from "lucide-react";
 
 const ApiKeyInput = () => {
   const [openaiKey, setOpenaiKey] = useState('');
@@ -34,10 +35,10 @@ const ApiKeyInput = () => {
   };
 
   return (
-    <div className="flex justify-center mb-6">
+    <div className="flex flex-col items-center mb-6">
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogTrigger asChild>
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" className={isKeySet ? "bg-green-50 text-green-600 hover:bg-green-100" : ""}>
             {isKeySet ? 'API Key Configurada ✓' : 'Configurar API Key para OpenAI'}
           </Button>
         </DialogTrigger>
@@ -59,6 +60,17 @@ const ApiKeyInput = () => {
                 Sua chave será armazenada apenas no localStorage do seu navegador e não será enviada para nossos servidores.
               </p>
             </div>
+            
+            {!isKeySet && (
+              <div className="flex items-start gap-2 p-3 bg-amber-50 border border-amber-200 rounded-md">
+                <AlertCircle className="h-5 w-5 text-amber-500 flex-shrink-0 mt-0.5" />
+                <div className="text-sm text-amber-800">
+                  <p className="font-medium">Nota importante</p>
+                  <p>Para usar a API da OpenAI, você precisa de uma chave válida. Sem ela, o aplicativo usará um resumo simulado para demonstração.</p>
+                </div>
+              </div>
+            )}
+            
             <div className="flex justify-between">
               <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
                 Cancelar
@@ -76,6 +88,12 @@ const ApiKeyInput = () => {
           </div>
         </DialogContent>
       </Dialog>
+      
+      {!isKeySet && (
+        <p className="text-sm text-muted-foreground mt-2 text-center max-w-md">
+          Sem uma chave API, o aplicativo funcionará em modo de demonstração com transcrição e resumo simulados.
+        </p>
+      )}
     </div>
   );
 };
