@@ -85,7 +85,7 @@ const Index = () => {
         </main>
         
         <footer className="mt-20 text-center text-sm text-muted-foreground animate-fade-in">
-          <p>Desenvolvido com tecnologia de ponta em processamento de linguagem natural e IA</p>
+          <p>Create By vmaacos</p>
         </footer>
       </div>
 
