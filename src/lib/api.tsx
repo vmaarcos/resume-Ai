@@ -1,68 +1,26 @@
+import { AssemblyAI } from "assemblyai"; 
+
+const client = new AssemblyAI({
+  apiKey: "cdc6b5a3577a4513bf3235d901fc77af",
+});
 
 export async function transcribeVideo(videoId: string): Promise<string> {
   console.log(`Transcrevendo o vídeo: ${videoId}`);
-  
+
   try {
-    // OPÇÃO 1: Usando a API do AssemblyAI (https://www.assemblyai.com/)
-    // Você precisará criar uma conta e obter uma API key
-    
-    // Exemplo de chamada à API AssemblyAI
-    // const response = await fetch('https://api.assemblyai.com/v2/transcript', {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //     'Authorization': process.env.ASSEMBLY_AI_KEY || 'SUA_API_KEY_AQUI'
-    //   },
-    //   body: JSON.stringify({
-    //     audio_url: `https://www.youtube.com/watch?v=${videoId}`,
-    //     language_code: 'pt'
-    //   })
-    // });
-    // const data = await response.json();
-    // return data.text;
-    
-    
-    if (mockTranscriptions[videoId]) {
-      return mockTranscriptions[videoId];
-    }
+    const response = await client.transcripts.create({
+      audio_url: `https://www.youtube.com/watch?v=${videoId}`,
+    });
 
-    if (Math.random() < 0.1) {
-      throw new Error("Simulação de erro de transcrição para teste");
-    }
-    
-
-    return defaultTranscription;
-    
+    console.log("Transcrição:", response.text);
+    return response.text;
   } catch (error) {
-    console.error('Erro ao transcrever o vídeo:', error);
-    
-    console.log("Usando transcrição padrão devido a um erro...");
-    return defaultTranscription;
+    console.error("Erro na transcrição:", error);
+    return "Erro ao transcrever o vídeo.";
   }
 }
 
-// Função para resumir um texto utilizando IA
-export async function summarizeText(text: string): Promise<string> {
-  console.log('Resumindo o texto...');
-  
-  try {
-
-    const apiType = localStorage.getItem('api_type') || 'huggingface';
-
-    // OPÇÃO 2: Usando a API Hugging Face Inference (gratuita)
-    if (apiType === 'huggingface') {
-      return await useHuggingFaceAPI(text);
-    }
-    
-    // Se nenhuma API estiver configurada, gerar um resumo simulado
-    return generateSimulatedSummary(text);
-    
-  } catch (error) {
-    console.error('Erro ao resumir o texto:', error);
-  }
-}
-
-// Função para usar a API gratuita do Hugging Face
+// Função para usar a API do Hugging Face
 async function useHuggingFaceAPI(text: string): Promise<string> {
   try {
     console.log("Usando a API pública do Hugging Face...");
@@ -70,11 +28,12 @@ async function useHuggingFaceAPI(text: string): Promise<string> {
     // Reduzir o texto para atender aos limites da API gratuita
     const truncatedText = text.slice(0, 2000) + (text.length > 2000 ? '...' : '');
     
-    // A API gratuita do Hugging Face
+    // A API pública do Hugging Face
     const response = await fetch('https://api-inference.huggingface.co/models/facebook/bart-large-cnn', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.HUGGINGFACE_API_KEY}`,  
       },
       body: JSON.stringify({
         inputs: truncatedText,
@@ -84,24 +43,32 @@ async function useHuggingFaceAPI(text: string): Promise<string> {
         }
       })
     });
-    
+
     if (!response.ok) {
       console.error("Erro na resposta do Hugging Face:", response.status);
       throw new Error(`Erro na API do Hugging Face: ${response.status}`);
     }
     
     const data = await response.json();
-    console.log("Resumo gerado pelo Hugging Face:", data);
+    console.log("Resposta da API do Hugging Face:", data);
     
-    return Array.isArray(data) ? data[0].summary_text : data.summary_text;
+    // Verificar se a resposta contém o campo esperado
+    if (Array.isArray(data) && data[0]?.summary_text) {
+      return data[0].summary_text;
+    } else if (data.summary_text) {
+      return data.summary_text;
+    } else {
+      console.error("Estrutura inesperada na resposta:", data);
+      return generateSimulatedSummary(text);
+    }
+
   } catch (error) {
     console.error("Erro ao usar a API do Hugging Face:", error);
-    // Se a API falhar, usamos o resumo simulado
     return generateSimulatedSummary(text);
   }
 }
 
-// Função para gerar um resumo simulado
+// Função para gerar um resumo simulado caso a API falhe
 function generateSimulatedSummary(text: string): string {
   const words = text.split(' ');
   const summaryLength = Math.max(Math.floor(words.length * 0.3), 50);
@@ -123,7 +90,6 @@ Este vídeo é recomendado para pessoas interessadas em ${getRandomTopic()}.
 
 // Algumas transcrições simuladas para demonstração
 const mockTranscriptions: {[key: string]: string} = {
-  // Adicione alguns IDs de vídeos conhecidos e suas "transcrições"
   'dQw4w9WgXcQ': `Nunca vou te abandonar, nunca vou te decepcionar, nunca vou correr e te desertár. 
   Nunca vou te fazer chorar, nunca vou dizer adeus, nunca vou contar uma mentira e te machucar. 
   Nós nos conhecemos há tanto tempo, seu coração tem doído, mas você é tímido para dizer isso.

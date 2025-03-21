@@ -3,25 +3,29 @@ import VideoInput from '@/components/VideoInput';
 import VideoPreview from '@/components/VideoPreview';
 import SummaryResult from '@/components/SummaryResult';
 import LoadingState from '@/components/LoadingState';
-import { transcribeVideo, summarizeText } from '@/lib/api';
+import { transcribeVideo } from '@/lib/api';
 import { getVideoInfo } from '@/utils/youtube';
 import { Toaster } from "@/components/ui/toaster";
 import { useToast } from "@/components/ui/use-toast";
 
 const Index = () => {
-  const [videoUrl, setVideoUrl] = useState('');
-  const [videoId, setVideoId] = useState('');
-  const [videoTitle, setVideoTitle] = useState('');
-  const [summary, setSummary] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [videoUrl, setVideoUrl] = useState<string>(''); // Garantindo que seja uma string
+  const [videoId, setVideoId] = useState<string>(''); // Tipagem de videoId como string
+  const [videoTitle, setVideoTitle] = useState<string>(''); // Tipagem de videoTitle como string
+  const [summary, setSummary] = useState<string>(''); // Tipagem de summary como string
+  const [isLoading, setIsLoading] = useState<boolean>(false); // Garantindo que isLoading seja booleano
   const { toast } = useToast();
 
   useEffect(() => {
     const fetchVideoInfo = async () => {
       if (videoId) {
-        const info = await getVideoInfo(videoId);
-        if (info) {
-          setVideoTitle(info.title);
+        try {
+          const info = await getVideoInfo(videoId);
+          if (info) {
+            setVideoTitle(info.title);
+          }
+        } catch (error) {
+          console.error('Erro ao buscar informações do vídeo:', error);
         }
       }
     };
@@ -36,10 +40,9 @@ const Index = () => {
     setIsLoading(true);
 
     try {
-      const transcription = await transcribeVideo(id);
-      
-      const generatedSummary = await summarizeText(transcription);
-      
+      const transcription = await transcribeVideo(id); 
+      const generatedSummary = await summarizeText(transcription); 
+
       setSummary(generatedSummary);
       
       toast({
@@ -72,20 +75,16 @@ const Index = () => {
         </header>
         
         <main className="space-y-8">
-          
           <VideoInput onSubmit={handleVideoSubmit} isLoading={isLoading} />
-          
           {videoId && <VideoPreview videoId={videoId} />}
-          
           {isLoading && <LoadingState />}
-          
           {!isLoading && summary && (
             <SummaryResult summary={summary} videoTitle={videoTitle} />
           )}
         </main>
         
         <footer className="mt-20 text-center text-sm text-muted-foreground animate-fade-in">
-          <p>Create By vmaacos</p>
+          <p>Created By vmaacos</p>
         </footer>
       </div>
 
