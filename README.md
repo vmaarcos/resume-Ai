@@ -1,69 +1,7 @@
-# Welcome to your Lovable project
+# Resume AI
 
-## Project info
+O Resume AI é uma plataforma SaaS inovadora desenvolvida com Vite, TypeScript e Tailwind CSS, focada em transformar vídeos do YouTube em resumos precisos e eficientes. Com uma interface moderna e intuitiva, o usuário simplesmente cola o link do vídeo na plataforma, e a inteligência artificial processa o conteúdo, gerando um resumo claro e objetivo.
 
-**URL**: https://lovable.dev/projects/46f519b5-2b35-44e2-bf6a-d666272eba5f
+Utilizando a API da AssemblyAI para transcrição de áudio e a API da Hubbins Face para aprimorar a análise de contexto, o Resume AI entrega resumos de alta qualidade, permitindo que usuários absorvam informações rapidamente sem precisar assistir a vídeos longos.
 
-## How can I edit this code?
-
-There are several ways of editing your application.
-
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/46f519b5-2b35-44e2-bf6a-d666272eba5f) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with .
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/46f519b5-2b35-44e2-bf6a-d666272eba5f) and click on Share -> Publish.
-
-## I want to use a custom domain - is that possible?
-
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+Ideal para estudantes, pesquisadores e profissionais que desejam otimizar seu tempo, o Resume AI simplifica o aprendizado e o consumo de conteúdo digital de forma inteligente e acessível. 🚀

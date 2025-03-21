@@ -3,7 +3,6 @@ import VideoInput from '@/components/VideoInput';
 import VideoPreview from '@/components/VideoPreview';
 import SummaryResult from '@/components/SummaryResult';
 import LoadingState from '@/components/LoadingState';
-import ApiKeyInput from '@/components/ApiKeyInput';
 import { transcribeVideo, summarizeText } from '@/lib/api';
 import { getVideoInfo } from '@/utils/youtube';
 import { Toaster } from "@/components/ui/toaster";
@@ -64,7 +63,7 @@ const Index = () => {
       <div className="container mx-auto max-w-4xl">
         <header className="text-center mb-12 space-y-4 animate-slide-down">
           <h1 className="text-4xl md:text-5xl font-semibold tracking-tight">
-            AI Video QuickDigest
+            Resume AI
           </h1>
           <p className="text-muted-foreground max-w-xl mx-auto">
             Transforme vídeos longos em resumos concisos usando inteligência artificial. 
@@ -73,7 +72,6 @@ const Index = () => {
         </header>
         
         <main className="space-y-8">
-          <ApiKeyInput />
           
           <VideoInput onSubmit={handleVideoSubmit} isLoading={isLoading} />
           
