@@ -1,7 +1,7 @@
 import { AssemblyAI } from "assemblyai"; 
 
 const client = new AssemblyAI({
-  apiKey: "cdc6b5a3577a4513bf3235d901fc77af",
+  apiKey: "coloque sua chave api",
 });
 
 export async function transcribeVideo(videoId: string): Promise<string> {
