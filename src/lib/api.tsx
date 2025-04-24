@@ -20,15 +20,15 @@ export async function transcribeVideo(videoId: string): Promise<string> {
   }
 }
 
-// Função para usar a API do Hugging Face
+
 async function useHuggingFaceAPI(text: string): Promise<string> {
   try {
     console.log("Usando a API pública do Hugging Face...");
     
-    // Reduzir o texto para atender aos limites da API gratuita
+
     const truncatedText = text.slice(0, 2000) + (text.length > 2000 ? '...' : '');
     
-    // A API pública do Hugging Face
+
     const response = await fetch('https://api-inference.huggingface.co/models/facebook/bart-large-cnn', {
       method: 'POST',
       headers: {
@@ -52,7 +52,7 @@ async function useHuggingFaceAPI(text: string): Promise<string> {
     const data = await response.json();
     console.log("Resposta da API do Hugging Face:", data);
     
-    // Verificar se a resposta contém o campo esperado
+
     if (Array.isArray(data) && data[0]?.summary_text) {
       return data[0].summary_text;
     } else if (data.summary_text) {
@@ -68,7 +68,7 @@ async function useHuggingFaceAPI(text: string): Promise<string> {
   }
 }
 
-// Função para gerar um resumo simulado caso a API falhe
+
 function generateSimulatedSummary(text: string): string {
   const words = text.split(' ');
   const summaryLength = Math.max(Math.floor(words.length * 0.3), 50);
@@ -88,7 +88,7 @@ Este vídeo é recomendado para pessoas interessadas em ${getRandomTopic()}.
   return summary.trim();
 }
 
-// Algumas transcrições simuladas para demonstração
+
 const mockTranscriptions: {[key: string]: string} = {
   'dQw4w9WgXcQ': `Nunca vou te abandonar, nunca vou te decepcionar, nunca vou correr e te desertár. 
   Nunca vou te fazer chorar, nunca vou dizer adeus, nunca vou contar uma mentira e te machucar. 
@@ -97,7 +97,6 @@ const mockTranscriptions: {[key: string]: string} = {
   E se você me perguntar como eu estou me sentindo, não me diga que você é cego demais para ver.`,
 };
 
-// Transcrição padrão para IDs de vídeo desconhecidos
 const defaultTranscription = `Este é um exemplo de transcrição para demonstração do aplicativo. 
 Em uma implementação real, esta seria a transcrição do áudio do vídeo do YouTube.
 A transcrição incluiria todo o conteúdo falado no vídeo, permitindo que nosso modelo de IA 
@@ -108,7 +107,7 @@ seções do vídeo ou identificar diferentes assuntos discutidos ao longo do con
 o resumo ainda mais útil e informativo para os usuários que desejam obter rapidamente as 
 principais ideias de um vídeo sem ter que assisti-lo por completo.`;
 
-// Função auxiliar para gerar tópicos aleatórios para a simulação
+
 function getRandomTopic(): string {
   const topics = [
     "tecnologia",
