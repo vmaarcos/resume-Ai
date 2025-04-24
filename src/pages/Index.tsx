@@ -9,11 +9,11 @@ import { Toaster } from "@/components/ui/toaster";
 import { useToast } from "@/components/ui/use-toast";
 
 const Index = () => {
-  const [videoUrl, setVideoUrl] = useState<string>(''); // Garantindo que seja uma string
+  const [videoUrl, setVideoUrl] = useState<string>(''); 
   const [videoId, setVideoId] = useState<string>(''); // Tipagem de videoId como string
-  const [videoTitle, setVideoTitle] = useState<string>(''); // Tipagem de videoTitle como string
-  const [summary, setSummary] = useState<string>(''); // Tipagem de summary como string
-  const [isLoading, setIsLoading] = useState<boolean>(false); // Garantindo que isLoading seja booleano
+  const [videoTitle, setVideoTitle] = useState<string>(''); 
+  const [summary, setSummary] = useState<string>(''); 
+  const [isLoading, setIsLoading] = useState<boolean>(false); 
   const { toast } = useToast();
 
   useEffect(() => {
