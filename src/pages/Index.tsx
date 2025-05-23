@@ -15,6 +15,14 @@ const Index = () => {
   const [summary, setSummary] = useState<string>(''); 
   const [isLoading, setIsLoading] = useState<boolean>(false); 
   const { toast } = useToast();
+  const [loggedInUserName, setLoggedInUserName] = useState<string | null>(null);
+
+  useEffect(() => {
+    const name = localStorage.getItem('userName');
+    if (name) {
+      setLoggedInUserName(name);
+    }
+  }, []);
 
   useEffect(() => {
     const fetchVideoInfo = async () => {
@@ -68,6 +76,9 @@ const Index = () => {
           <h1 className="text-4xl md:text-5xl font-semibold tracking-tight">
             Resume AI
           </h1>
+          {loggedInUserName && (
+            <p className="text-xl text-muted-foreground">Welcome, {loggedInUserName}!</p>
+          )}
           <p className="text-muted-foreground max-w-xl mx-auto">
             Transforme vídeos longos em resumos concisos usando inteligência artificial. 
             Obtenha os principais pontos de qualquer vídeo do YouTube em segundos.
